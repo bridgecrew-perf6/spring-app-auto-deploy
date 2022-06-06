@@ -93,7 +93,6 @@
 
   
 node {
-    agent { label 'jenkins-runner-1' }
     def app
 
     stage('Clone repository') {
