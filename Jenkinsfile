@@ -95,8 +95,10 @@
 node {
     def app
 
-    stage('Clone repository') {
+    stage('Clone repository, build and test') {
         checkout scm
+        sh './mvnw clean install'
+        sh './mvnw test'
     }
 
     stage('Build image') {
