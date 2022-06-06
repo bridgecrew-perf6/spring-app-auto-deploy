@@ -6,9 +6,12 @@ pipeline {
     environment {
         dockerhub = credentials('docker-hub-account-credentials-nizar-dev01')
     }
+
     stages {
         stage('Clone repository') {
-            checkout scm
+            steps{
+                checkout scm
+            }
         }
 
         stage('Run Tests') {
