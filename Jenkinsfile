@@ -42,48 +42,78 @@
 
 
 
-pipeline{
+// pipeline{
+//     agent { label 'jenkins-runner-1' }
+
+//     tools {
+//         maven 'MAVEN'
+//     }
+
+//     environment {
+//         dockerhub = credentials('docker-hub-account-credentials-nizar-dev01')
+//     }
+
+//     stages {
+//         stage('Build Maven') {
+//             steps{
+//                 checkout scm
+//                 sh "./mvnw clean install"
+//             }
+//         }
+//         stage('Run Tests') {
+//             steps{
+//                 sh "./mvnw test"
+//             }
+//         }
+//         stage('Build Docker Image') {
+//             steps {
+//                 app = docker.build("nizardev01/spring-app")
+//             }
+//         }
+//         stage('Test image') {
+//             steps {
+//                 app.inside {
+//                     sh 'echo "Tests passed"'
+//                 }
+//             }
+//         }
+//         stage('Deploy Docker Image') {
+//             steps {
+//                 docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-account-credentials-nizar-dev01') {
+//                     app.push("${env.BUILD_NUMBER}")
+//                     app.push("latest")
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
+
+
+  
+node {
     agent { label 'jenkins-runner-1' }
+    def app
 
-    tools {
-        maven 'MAVEN'
+    stage('Clone repository') {
+        checkout scm
     }
 
-    environment {
-        dockerhub = credentials('docker-hub-account-credentials-nizar-dev01')
+    stage('Build image') {
+       app = docker.build("nizardev01/spring-app")
     }
 
-    stages {
-        stage('Build Maven') {
-            steps{
-                checkout scm
-                sh "./mvnw clean install"
-            }
+    stage('Test image') {
+        app.inside {
+            sh 'echo "Tests passed"'
         }
-        stage('Run Tests') {
-            steps{
-                sh "./mvnw test"
-            }
-        }
-        stage('Build Docker Image') {
-            steps {
-                app = docker.build("nizardev01/spring-app")
-            }
-        }
-        stage('Test image') {
-            steps {
-                app.inside {
-                    sh 'echo "Tests passed"'
-                }
-            }
-        }
-        stage('Deploy Docker Image') {
-            steps {
-                docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-account-credentials-nizar-dev01') {
-                    app.push("${env.BUILD_NUMBER}")
-                    app.push("latest")
-                }
-            }
+    }
+
+    stage('Push image') {
+        docker.withRegistry('https://registry.hub.docker.com', 'docker-hub-account-credentials-nizar-dev01') {
+            app.push("${env.BUILD_NUMBER}")
+            app.push("latest")
         }
     }
 }
