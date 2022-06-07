@@ -24,7 +24,11 @@
         }
     }
 
-    // stage('Deploy Application') {
-        
-    // }
+    stage('Deploy Application') {
+        withCredentials([sshUserPrivateKey(credentialsId: "ssh-username-key-spring-app-jenkins", keyFileVariable: 'keyfile')]) {
+            stage('Deploy Application to the SWARM Cluster') {
+                sh "ssh -i ${keyfile} -o StrictHostKeyChecking=no ubuntu@10.0.12.136 'docker service update --image nizardev01/simplilearn-capstone-project:${env.BUILD_NUMBER} sl-spring-app'"
+            }
+        }
+    }
 }
